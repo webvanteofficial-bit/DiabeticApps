@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { db, migrateUsers } from "../db";
+import { supabase } from "../supabaseClient";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,12 +9,11 @@ export default function Login() {
   const [err, setErr] = useState("");
   const submit = async e => {
     e.preventDefault();
-    await migrateUsers();
     const em = email.trim();
     const pw = password.trim();
-    const u = await db.users.where("email").equals(em).first();
-    if (!u || u.password !== pw) { setErr("Invalid email or password."); return; }
-    await db.loginRecords.add({ email: u.email, action: "login", timestamp: Date.now() });
+    const { data: u, error } = await supabase.from("users").select("*").eq("email", em).maybeSingle();
+    if (error || !u || u.password !== pw) { setErr("Invalid email or password."); return; }
+    await supabase.from("login_records").insert([{ email: u.email, action: "login", timestamp: Date.now() }]);
     localStorage.setItem("sugarlog.user", JSON.stringify({ email: u.email, name: u.name }));
     navigate("/dashboard");
   };

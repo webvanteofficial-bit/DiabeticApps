@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { db, migrateUsers } from "../db";
+import { supabase } from "../supabaseClient";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -11,20 +11,20 @@ export default function Signup() {
   const [err, setErr] = useState("");
   const submit = async e => {
     e.preventDefault();
+    const nm = name.trim();
+    const em = email.trim();
     const pwd = password.trim();
     const conf = confirm.trim();
     if (pwd.length < 6) { setErr("Password must be at least 6 characters."); return; }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) { setErr("Password must include at least one special character."); return; }
     if (pwd !== conf) { setErr("Passwords do not match."); return; }
-    await migrateUsers();
-    const existing = await db.users.where("email").equals(email.trim()).first();
+    const { data: existing, error: findError } = await supabase.from("users").select("id").eq("email", em).maybeSingle();
+    if (findError) { setErr(findError.message); return; }
     if (existing) { setErr("An account with this email already exists."); return; }
-    await db.users.add({ name: name.trim(), email: email.trim(), password: pwd });
-    await db.loginRecords.add({ email: email.trim(), action: "signup", timestamp: Date.now() });
-    const users = JSON.parse(localStorage.getItem("sugarlog.users") || "[]");
-    users.push({ name: name.trim(), email: email.trim(), password: pwd });
-    localStorage.setItem("sugarlog.users", JSON.stringify(users));
-    localStorage.setItem("sugarlog.user", JSON.stringify({ email: email.trim(), name: name.trim() }));
+    const { error: insertError } = await supabase.from("users").insert([{ name: nm, email: em, password: pwd }]);
+    if (insertError) { setErr(insertError.message); return; }
+    await supabase.from("login_records").insert([{ email: em, action: "signup", timestamp: Date.now() }]);
+    localStorage.setItem("sugarlog.user", JSON.stringify({ email: em, name: nm }));
     navigate("/dashboard");
   };
   return (

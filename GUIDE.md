@@ -324,7 +324,10 @@ cd "C:\Users\DEll\Downloads\testing\sugar-log"; Test-Path GUIDE.md
 
 This app uses Supabase for user and login record storage.
 
-Client file: src/db.js
+Client file: src/supabaseClient.js
+Environment variables (see .env.example):
+- VITE_SUPABASE_URL
+- VITE_SUPABASE_PUBLISHABLE_KEY
 
 Supabase project URL:
 https://rnxnytmmyzuhqznbjwll.supabase.co
