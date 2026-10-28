@@ -320,3 +320,37 @@ db.version(2).stores({ ... });
 
 This is good. Write file.<|end|><|start|>-start to=bash<|channel|>analysis <|constrain|>xml<|message|><rfl:parameter name="command">
 cd "C:\Users\DEll\Downloads\testing\sugar-log"; Test-Path GUIDE.md
+## 15. Supabase Setup
+
+This app uses Supabase for user and login record storage.
+
+Client file: src/db.js
+
+Supabase project URL:
+https://rnxnytmmyzuhqznbjwll.supabase.co
+
+Publishable key is stored in src/db.js. The secret key is NOT stored in the frontend.
+
+Create these tables in the Supabase SQL editor before using authentication:
+
+`sql
+create table if not exists users (
+  id bigserial primary key,
+  name text not null,
+  email text unique not null,
+  password text not null,
+  created_at timestamptz default now()
+);
+
+create table if not exists login_records (
+  id bigserial primary key,
+  email text not null,
+  action text not null,
+  timestamp bigint not null
+);
+
+alter table users disable row level security;
+alter table login_records disable row level security;
+`
+
+For production, enable Row Level Security and add proper policies instead of disabling it.
