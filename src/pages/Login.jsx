@@ -10,8 +10,10 @@ export default function Login() {
   const submit = async e => {
     e.preventDefault();
     await migrateUsers();
-    const u = await db.users.where("email").equals(email).first();
-    if (!u || u.password !== password) { setErr("Invalid email or password."); return; }
+    const em = email.trim();
+    const pw = password.trim();
+    const u = await db.users.where("email").equals(em).first();
+    if (!u || u.password !== pw) { setErr("Invalid email or password."); return; }
     await db.loginRecords.add({ email: u.email, action: "login", timestamp: Date.now() });
     localStorage.setItem("sugarlog.user", JSON.stringify({ email: u.email, name: u.name }));
     navigate("/dashboard");

@@ -11,18 +11,20 @@ export default function Signup() {
   const [err, setErr] = useState("");
   const submit = async e => {
     e.preventDefault();
-    if (password.length < 6) { setErr("Password must be at least 6 characters."); return; }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) { setErr("Password must include at least one special character."); return; }
-    if (password !== confirm) { setErr("Passwords do not match."); return; }
+    const pwd = password.trim();
+    const conf = confirm.trim();
+    if (pwd.length < 6) { setErr("Password must be at least 6 characters."); return; }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) { setErr("Password must include at least one special character."); return; }
+    if (pwd !== conf) { setErr("Passwords do not match."); return; }
     await migrateUsers();
-    const existing = await db.users.where("email").equals(email).first();
+    const existing = await db.users.where("email").equals(email.trim()).first();
     if (existing) { setErr("An account with this email already exists."); return; }
-    await db.users.add({ name, email, password });
-    await db.loginRecords.add({ email, action: "signup", timestamp: Date.now() });
+    await db.users.add({ name: name.trim(), email: email.trim(), password: pwd });
+    await db.loginRecords.add({ email: email.trim(), action: "signup", timestamp: Date.now() });
     const users = JSON.parse(localStorage.getItem("sugarlog.users") || "[]");
-    users.push({ name, email, password });
+    users.push({ name: name.trim(), email: email.trim(), password: pwd });
     localStorage.setItem("sugarlog.users", JSON.stringify(users));
-    localStorage.setItem("sugarlog.user", JSON.stringify({ email, name }));
+    localStorage.setItem("sugarlog.user", JSON.stringify({ email: email.trim(), name: name.trim() }));
     navigate("/dashboard");
   };
   return (
