@@ -34,7 +34,7 @@ export default function Signup() {
         <form onSubmit={submit}>
           <div className="field"><label>Name</label><input required value={name} onChange={e => setName(e.target.value)} placeholder="Your name" /></div>
           <div className="field"><label>Email</label><input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></div>
-          <div className="field"><label>Password</label><input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="At least 6 characters" /></div>
+          <div className="field"><label>Password</label><input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="At least 6 characters and one special character" /></div>
           <div className="field"><label>Confirm password</label><input type="password" required value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repeat password" /></div>
           {err && <div className="err">{err}</div>}
           <button className="btn" type="submit">Sign up</button>
