@@ -18,12 +18,8 @@ export default function Signup() {
     if (pwd.length < 6) { setErr("Password must be at least 6 characters."); return; }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) { setErr("Password must include at least one special character."); return; }
     if (pwd !== conf) { setErr("Passwords do not match."); return; }
-    const { data: existing, error: findError } = await supabase.from("users").select("id").eq("email", em).maybeSingle();
-    if (findError) { setErr(findError.message); return; }
-    if (existing) { setErr("An account with this email already exists."); return; }
-    const { error: insertError } = await supabase.from("users").insert([{ name: nm, email: em, password: pwd }]);
-    if (insertError) { setErr(insertError.message); return; }
-    await supabase.from("login_records").insert([{ email: em, action: "signup", timestamp: Date.now() }]);
+    const { error } = await supabase.auth.signUp({ email: em, password: pwd, options: { data: { name: nm } } });
+    if (error) { setErr(error.message); return; }
     localStorage.setItem("sugarlog.user", JSON.stringify({ email: em, name: nm }));
     navigate("/dashboard");
   };

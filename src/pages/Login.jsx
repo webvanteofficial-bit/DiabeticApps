@@ -11,10 +11,10 @@ export default function Login() {
     e.preventDefault();
     const em = email.trim();
     const pw = password.trim();
-    const { data: u, error } = await supabase.from("users").select("*").eq("email", em).maybeSingle();
-    if (error || !u || u.password !== pw) { setErr("Invalid email or password."); return; }
-    await supabase.from("login_records").insert([{ email: u.email, action: "login", timestamp: Date.now() }]);
-    localStorage.setItem("sugarlog.user", JSON.stringify({ email: u.email, name: u.name }));
+    const { data, error } = await supabase.auth.signInWithPassword({ email: em, password: pw });
+    if (error) { setErr("Invalid email or password."); return; }
+    const name = data.user?.user_metadata?.name || em;
+    localStorage.setItem("sugarlog.user", JSON.stringify({ email: em, name }));
     navigate("/dashboard");
   };
   return (

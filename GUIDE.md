@@ -357,3 +357,5 @@ alter table login_records disable row level security;
 `
 
 For production, enable Row Level Security and add proper policies instead of disabling it.
+
+In Supabase Auth settings, disable email confirmation for local testing, or confirm the email before logging in.
